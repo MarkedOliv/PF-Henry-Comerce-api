@@ -6,13 +6,14 @@ const initialState = {
   detail: [],
   filtered: [],
   added: [],
-  notFound: "",
+  notFound: '',
   cart: [],
   allBranches: [],
   user: [],
+  orders: [],
 
   /* AUTH */
-  status: "not-authenticated", // 'checking', 'not-authenticated', 'authenticated'
+  status: 'not-authenticated', // 'checking', 'not-authenticated', 'authenticated'
   uid: null,
   email: null,
   displayName: null,
@@ -22,10 +23,10 @@ const initialState = {
 
 function rootReducer(state = initialState, action) {
   switch (action.type) {
-    case "LOGIN":
+    case 'LOGIN':
       return {
         ...state,
-        status: "authenticated",
+        status: 'authenticated',
         uid: action.payload.uid,
         email: action.payload.email,
         displayName: action.payload.displayName,
@@ -33,10 +34,10 @@ function rootReducer(state = initialState, action) {
         errorMessage: null,
       };
 
-    case "LOGOUT":
+    case 'LOGOUT':
       return {
         ...state,
-        status: "not-authenticated",
+        status: 'not-authenticated',
         uid: null,
         email: null,
         displayName: null,
@@ -44,39 +45,39 @@ function rootReducer(state = initialState, action) {
         errorMessage: action.payload?.errorMessage,
       };
 
-    case "CHECKING_CREDENTIALS":
+    case 'CHECKING_CREDENTIALS':
       return {
         ...state,
-        status: "checking",
+        status: 'checking',
       };
 
-    case "GET_CLOTHING":
+    case 'GET_CLOTHING':
       return {
         ...state,
         allClothing: action.payload,
-        notFound: "",
+        notFound: '',
       };
 
-    case "GET_CLOTHING_DETAIL":
+    case 'GET_CLOTHING_DETAIL':
       return {
         ...state,
         detail: action.payload[0],
       };
 
-    case "POST_REVIEW":
+    case 'POST_REVIEW':
       return {
         ...state,
         review: action.payload,
       };
 
-    case "SET_ORDER_PRICE":
+    case 'SET_ORDER_PRICE':
       let orderByPrice = [...state.allClothing];
       orderByPrice = orderByPrice.sort((a, b) => {
         if (a.price < b.price) {
-          return action.payload === "low" ? -1 : 1;
+          return action.payload === 'low' ? -1 : 1;
         }
         if (a.price > b.price) {
-          return action.payload === "top" ? -1 : 1;
+          return action.payload === 'top' ? -1 : 1;
         }
         return 0;
       });
@@ -85,18 +86,18 @@ function rootReducer(state = initialState, action) {
         allClothing: orderByPrice,
       };
 
-    case "SEARCH_CLOTHING_NAME":
+    case 'SEARCH_CLOTHING_NAME':
       return {
         ...state,
         allClothing: action.payload,
       };
 
-    case "ADD_CLOTHING":
+    case 'ADD_CLOTHING':
       return {
         ...state,
       };
 
-    case "CLEAR_STATE":
+    case 'CLEAR_STATE':
       return {
         ...state,
         allClothing: [],
@@ -104,30 +105,46 @@ function rootReducer(state = initialState, action) {
         detail: [],
       };
 
-    case "GET_BRANCHES":
+    case 'GET_BRANCHES':
       return {
         ...state,
         allBranches: action.payload,
       };
 
-    case "CHECKING_AUTH":
+    case 'CHECKING_AUTH':
       return {
         ...state,
-        status: "authenticated",
+        status: 'authenticated',
         email: action.payload.email,
         displayName: action.payload.username,
         errorMessage: null,
       };
 
-    case "GET_USER":
+    case 'GET_USER':
       return {
         ...state,
         user: action.payload,
       };
 
-    case "EDIT_USER":
+    case 'EDIT_USER':
       return {
         ...state,
+      };
+
+    case 'IncorrectPassword':
+      return {
+        ...state,
+      };
+
+    case "DELETE_REVIEW":
+      return {
+        ...state
+      }
+
+      case 'GET_ORDERS':
+      return {
+        ...state,
+        orders: action.payload,
       };
 
     default:

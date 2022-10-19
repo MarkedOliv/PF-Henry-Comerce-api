@@ -2,7 +2,7 @@
 
 import axios from 'axios';
 import { FaBullseye } from 'react-icons/fa';
-const LOCAL_HOST = 'http://localhost:3001';
+const LOCAL_HOST = 'https://pfapi.vercel.app';
 
 export function getClothing(allFilters) {
   return async function (dispatch) {
@@ -29,30 +29,6 @@ export function getClothing(allFilters) {
         payload: errorMessage,
       });
     }
-    // try {
-    //   axios
-    //     .get(`https://data.mongodb-api.com/app/data-oovux/endpoint/clothes`, {
-    //       headers: {
-    //         'api-key': `NXL8cE2iVb8gFma3cGU2JZbWrkTnHL9P0xegtO0RPKz7mfmh9Yptejsl1oVoZNBd`,
-    //       },
-    //     })
-    //     .then((response) => {
-    //       return dispatch({ type: 'GET_CLOTHING', payload: response.data });
-    //     })
-    //     .catch((error) => {
-    //       console.log(error);
-    //     });
-    // } catch (error) {
-    //   const errorMessage = { error: error.message };
-    //   console.log(
-    //     'Se a detectado un error en actions.js -- Linea 20 --',
-    //     errorMessage
-    //   );
-    //   return dispatch({
-    //     type: 'GET_CLOTHING',
-    //     payload: errorMessage,
-    //   });
-    // }
   };
 }
 
@@ -82,7 +58,6 @@ export function postReview(name, payload) {
           headers: { 'x-access-token': `${token}` },
         }
       );
-      console.log(token);
       return dispatch({
         type: 'POST_REVIEW',
         payload: review,
@@ -412,10 +387,17 @@ export const startLoginWithEmailPassword = ({ email, password }) => {
     //   });
     // }
 
-    const existe = await axios.post(`${LOCAL_HOST}/api/user/login`, {
-      email: email.toLowerCase(),
-      password,
-    });
+    let existe = {};
+    try {
+      existe = await axios.post(`${LOCAL_HOST}/api/user/login`, {
+        email: email.toLowerCase(),
+        password,
+      });
+    } catch (error) {
+      return dispatch({
+        type: 'IncorrectPassword',
+      });
+    }
 
     console.log('existe', existe);
     if (existe.status === 200) {
@@ -496,8 +478,43 @@ export function editUser(payload) {
         putUser,
       });
     } catch (error) {
-      const errorMessage = { error: error.message };
-      console.log(errorMessage);
+      return error.response.data;
     }
   };
 }
+
+export function deleteReview(name,payload) {
+  return async function (dispatch) {
+    const token = JSON.parse(localStorage.getItem('authenticated')).token;
+    try {
+      const review = await axios.put(
+        `${LOCAL_HOST}/api/clothing/reviewupdate/?name=${name}`,
+        payload,
+        {
+          headers: { 'x-access-token': `${token}` },
+        }
+      );
+      return dispatch({
+        type: 'DELETE_REVIEW',
+        payload: review,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+}
+
+export function getOrders(email) {
+  return async function (dispatch) {
+    try {
+      const orders = await axios.get(`${LOCAL_HOST}/api/checkout?email=${email}`);
+      return dispatch({
+        type: 'GET_ORDERS',
+        payload: orders.data,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+}
+

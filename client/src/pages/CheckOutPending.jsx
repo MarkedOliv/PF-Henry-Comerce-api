@@ -1,6 +1,30 @@
+import React from "react";
+
 export const CheckOutPending = () => {
   const params = new URLSearchParams(window.location.search);
+  const preferenceId = params.get("preference_id");
+  const collectionStatus = params.get("collection_status");
   const paymentId = params.get("payment_id");
+
+  const body = {
+    id: preferenceId,
+    status: collectionStatus,
+    paymentid: paymentId,
+  };
+  fetch("http://localhost:3001/api/checkout/collectionstatus", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  })
+    .then((response) => {
+      return response.json();
+    })
+    .catch((error) => {
+      alert("Unexpected error");
+      console.log("CheckOut", error);
+    });
 
   localStorage.clear("lsCartProducts");
 

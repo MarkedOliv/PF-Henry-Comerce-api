@@ -11,13 +11,15 @@ import { Order } from '../components/Order/Order';
 import { Filter } from '../components/Filter/Filter';
 import { setOrderByPrice } from '../redux/actions';
 
-export const Inicio = () => {
+export const Inicio = ({ dark }) => {
   const dispatch = useDispatch();
 
-  const clothing = useSelector((state) => state.allClothing);
+  let clothing = useSelector((state) => state.allClothing);
   const notFound = useSelector((state) => state.notFound);
   const Added = useSelector((state) => state.added);
   const [, setOrder] = useState('');
+
+  clothing = clothing.filter((c) => c.show === true);
 
   // PAGINADO
   const quantyProducts = useSelector((state) => state.allClothing.length);
@@ -51,26 +53,34 @@ export const Inicio = () => {
   return (
     <>
       {clothing.length > 0 && !notFound && (
-        <section className='section has-background-light is-clipped'>
+        <section
+          className={`${
+            dark ? 'has-background-black' : 'has-background-light'
+          } section is-clipped`}>
           <div>
-            <Order handleOrderByPrice={handleOrderByPrice} />
+            <Order handleOrderByPrice={handleOrderByPrice} dark={dark} />
           </div>
           <div className='columns '>
             <div className='column center is-2 has-text-centered'>
-              <Filter setCurrentPage={setCurrentPage} />
+              <Filter setCurrentPage={setCurrentPage} dark={dark} />
             </div>
             <div className='column is-10'>
               <div className='mb-20 columns is-multiline'>
+                {console.log(currentProducts)}
                 {currentProducts.map((product, index) => {
-                  return (
-                    <Product
-                      key={index}
-                      name={product.name}
-                      image={product.image}
-                      price={product.price}
-                      discount={product.discount}
-                    />
-                  );
+                  const { show } = product;
+                  if (show === true) {
+                    return (
+                      <Product
+                        key={index}
+                        name={product.name}
+                        image={product.image}
+                        price={product.price}
+                        discount={product.discount}
+                        dark={dark}
+                      />
+                    );
+                  }
                 })}
               </div>
             </div>
@@ -95,7 +105,16 @@ export const Inicio = () => {
           <h1>No clothing found</h1>
         </div>
       )}
-      {!notFound && clothing.length === 0 && <Loading />}
+      {!notFound && clothing.length === 0 && (
+        <div className=''>
+          <Loading />
+        </div>
+      )}
+      {/* {$(window).load(function () {
+        setInterval(function () {
+          $('.loader').fadeOut('slow');
+        }, 3000);
+      })} */}
     </>
   );
 };

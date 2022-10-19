@@ -2,13 +2,20 @@ const { Router } = require("express");
 const router = Router();
 const mercadopago = require("mercadopago");
 const OrderModel = require("../models/Order");
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 const { SECRET } = process.env;
-const { verifyToken, isAdmin } = require('../middlewares/utils');
+const { verifyToken, isAdmin } = require("../middlewares/utils");
 
-router.post("/create_preference", verifyToken, (req, res) => {
+router.get("/", async (req, res) => {
+  const { email } = req.query;
+  const query = await OrderModel.find({ identifier: email });
+  res.status(200).send(query);
+});
+
+router.post("/create_preference", (req, res) => {
+  const { email, lsCartProducts } = req.body;
   const preference = {
-    items: req.body.map((element) => {
+    items: lsCartProducts.map((element) => {
       return {
         title: element.name,
         description: element.size,
@@ -17,9 +24,9 @@ router.post("/create_preference", verifyToken, (req, res) => {
       };
     }),
     back_urls: {
-      success: "https://henry-commerce.github.io/success",
-      failure: "https://henry-commerce.github.io/failure",
-      pending: "https://henry-commerce.github.io/pending",
+      success: "https://henry-commerce.netlify.app/success",
+      failure: "https://henry-commerce.netlify.app/failure",
+      pending: "https://henry-commerce.netlify.app/pending",
     },
     auto_return: "approved",
   };
@@ -29,8 +36,9 @@ router.post("/create_preference", verifyToken, (req, res) => {
     .then((response) => {
       const newOrder = new OrderModel({
         id: response.body.id,
-        items: response.body.items,
+        items: lsCartProducts,
         payer: response.body.payer,
+        identifier: email,
       });
       newOrder
         .save()
@@ -45,6 +53,20 @@ router.post("/create_preference", verifyToken, (req, res) => {
     .catch((error) => {
       console.log("Mercadopago Preferences", error);
     });
+});
+
+router.put("/collectionstatus", async (req, res) => {
+  const { id, status, paymentid } = req.body;
+  try {
+    const foundOrder = await OrderModel.findOne({ id });
+    if (paymentid) {
+      foundOrder.payment.paymentid = paymentid;
+    }
+    foundOrder.payment.status = status;
+    await foundOrder.save();
+  } catch (error) {
+    console.log("Cannot PUT /checkout/collectionstatus", error);
+  }
 });
 
 router.get("/feedback", function (req, res) {

@@ -1,7 +1,7 @@
 /** @format */
 import { MdAdd, MdRemove } from "react-icons/md";
-import { useDispatch } from "react-redux";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 export const ShopItem = ({
   product,
@@ -9,11 +9,9 @@ export const ShopItem = ({
   setLsCartProducts,
   handleAmount,
 }) => {
-  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [count, setCount] = useState(product.count);
-  const size = product.size;
   const stock = product.stockk;
-  /* const price = product.pricee */
 
   useEffect(() => {
     const prodFind = lsCartProducts.find((e) => e.cartId === product.cartId);
@@ -34,6 +32,10 @@ export const ShopItem = ({
     localStorage.removeItem(idRemove);
     localStorage.setItem("lsCartProducts", JSON.stringify(newCart));
     setLsCartProducts(newCart);
+    handleAmount();
+    if (lsCartProducts.length === 1) {
+      navigate(0);
+    }
   };
 
   const handlePlus = () => {
@@ -117,7 +119,7 @@ export const ShopItem = ({
           </div>
         </div>
         <div className="column ">
-          <p className="subtitle has-text-info has-text-weight-bold pl-4 pb-2">
+          <p className="subtitle has-text-info has-text-weight-bold pb-2">
             ${product.price * count}
           </p>
         </div>
