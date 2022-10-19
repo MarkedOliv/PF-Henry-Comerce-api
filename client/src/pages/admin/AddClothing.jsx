@@ -76,12 +76,12 @@ export const AddClothing = ({ dark }) => {
       category: 'T-shirt',
       price: '',
       stock: {
-        XS: 0,
-        S: 0,
-        M: 0,
-        L: 0,
-        XL: 0,
-        XXL: 0,
+        XS: 10,
+        S: 10,
+        M: 10,
+        L: 10,
+        XL: 10,
+        XXL: 10,
       },
       image: '',
       description: '',
@@ -98,7 +98,8 @@ export const AddClothing = ({ dark }) => {
       description: Yup.string().required('You must add a description'),
     }),
     onSubmit: (formData) => {
-      dispatch(addClothing(formData));
+      const { token } = JSON.parse(localStorage.getItem('authenticated'));
+      dispatch(addClothing(formData, token));
       handleReset();
       notify();
     },
